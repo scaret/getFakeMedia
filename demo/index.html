@@ -6,24 +6,19 @@
     <script>
         const main = async ()=>{
 
-            const response = await axios.get("./audio/brysj.wav", {responseType: 'arraybuffer'});
-            const data = response.data;
-            console.log("data", data);
-            const mediaStream = await fakeMediaDevices.getFakeMedia({
+            const mediaStream = fakeMediaDevices.getFakeMedia({
                 audio: {
-                    audioBuffer: {
-                        data,
-                        loop: true
-                    }
+                    channelCount: 1,
+                    // left: false,
+                    // right: true,
+                    // mono: true
                 }
             })
-            console.log("mediaStream", mediaStream)
             document.getElementById("video-elem").srcObject = mediaStream
         }
 
         document.getElementById("play-btn").onclick = ()=>{
             main()
-            fakeMediaDevices.resume()
             document.getElementById("video-elem").play()
         }
     </script>

@@ -1,9 +1,12 @@
+export interface ArrayBufferInput {
+    data: ArrayBuffer;
+    loop: boolean;
+}
 export interface fakeAudioTrackConstraints {
     sampleRate?: number;
-    audioBuffer?: {
-        data: ArrayBuffer;
-        loop: boolean;
-    };
+    mono?: ArrayBufferInput;
+    left?: boolean | ArrayBufferInput;
+    right?: boolean | ArrayBufferInput;
+    channelCount?: 1 | 2;
 }
-export declare function getAudioTrack(constaint: fakeAudioTrackConstraints): Promise<MediaStreamTrack>;
-export declare function resumeAudio(): Promise<void>;
+export declare function getAudioTrack(constraint: fakeAudioTrackConstraints): MediaStreamTrack;
