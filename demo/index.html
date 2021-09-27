@@ -1,0 +1,30 @@
+<html>
+    <video id="video-elem" controls></video>
+    <button id="play-btn">Play</button>
+    <script src="../node_modules/axios/dist/axios.min.js"></script>
+    <script src="../dist/fakeMediaDevices.js"></script>
+    <script>
+        const main = async ()=>{
+
+            const response = await axios.get("./audio/brysj.wav", {responseType: 'arraybuffer'});
+            const data = response.data;
+            console.log("data", data);
+            const mediaStream = await fakeMediaDevices.getFakeMedia({
+                audio: {
+                    audioBuffer: {
+                        data,
+                        loop: true
+                    }
+                }
+            })
+            console.log("mediaStream", mediaStream)
+            document.getElementById("video-elem").srcObject = mediaStream
+        }
+
+        document.getElementById("play-btn").onclick = ()=>{
+            main()
+            fakeMediaDevices.resume()
+            document.getElementById("video-elem").play()
+        }
+    </script>
+</html>
