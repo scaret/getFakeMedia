@@ -1,8 +1,8 @@
 <html>
     <video id="video-elem" controls></video>
     <button id="play-btn">Play</button>
-    <script src="../node_modules/axios/dist/axios.min.js"></script>
-    <script src="../dist/fakeMediaDevices.js"></script>
+    <script src="./assets/axios/dist/axios.min.js"></script>
+    <script src="./dist/fakeMediaDevices.js"></script>
     <script>
         const main = async ()=>{
 
@@ -12,7 +12,8 @@
                     // left: false,
                     // right: true,
                     // mono: true
-                }
+                },
+                video: true
             })
             document.getElementById("video-elem").srcObject = mediaStream
         }

@@ -25,9 +25,14 @@ export function getAudioTrack(constraint: fakeAudioTrackConstraints){
         channelCount = 1,
     } = constraint
 
-    let context = ctxMap[sampleRate];
+    let context:AudioContext = ctxMap[sampleRate];
     if (!context){
-        context = new AudioContext({sampleRate});
+        if (window.AudioContext){
+            context = new AudioContext({sampleRate});
+        }else{
+            //@ts-ignore
+            context = new webkitAudioContext({sampleRate});
+        }
         ctxMap[sampleRate] = context;
     }
     let destination: MediaStreamAudioDestinationNode;
@@ -45,7 +50,7 @@ export function getAudioTrack(constraint: fakeAudioTrackConstraints){
     }
     if (channelCount === 1){
         const mono: ArrayBufferInput = constraint.mono || {
-            data: brysj,
+            data: brysj.slice(0),
             loop: true
         };
         context.decodeAudioData(mono.data, (buffer:AudioBuffer)=>{
@@ -61,7 +66,7 @@ export function getAudioTrack(constraint: fakeAudioTrackConstraints){
         const duration = 1.764;
         if (constraint.left !== false){
             const left = typeof constraint.left === "object" ? constraint.left : {
-                data: bbdbbjyy,
+                data: bbdbbjyy.slice(0),
                 loop: true,
             };
             context.decodeAudioData(left.data, (buffer:AudioBuffer)=>{
@@ -74,7 +79,7 @@ export function getAudioTrack(constraint: fakeAudioTrackConstraints){
         }
         if (constraint.right !== false){
             const right = typeof constraint.right === "object" ? constraint.right : {
-                data: mmdmmjnn,
+                data: mmdmmjnn.slice(0),
                 loop: true
             };
             context.decodeAudioData(right.data, (buffer:AudioBuffer)=>{
