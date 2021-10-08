@@ -17,5 +17,7 @@ interface fakeMediaStreamConstraints {
     audio?: boolean | fakeAudioTrackConstraints;
     video?: boolean | videoTrackConstraintInput;
 }
+export declare const audioTracks: MediaStreamTrack[];
+export declare const videoTracks: MediaStreamTrack[];
 export declare function getFakeMedia(constrants: fakeMediaStreamConstraints): MediaStream;
 export {};

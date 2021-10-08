@@ -22,6 +22,9 @@ interface fakeMediaStreamConstraints{
     video?: boolean|videoTrackConstraintInput
 }
 
+export const audioTracks:MediaStreamTrack[] = []
+export const videoTracks:MediaStreamTrack[] = []
+
 export function getFakeMedia(constrants: fakeMediaStreamConstraints){
     let audioTrack:MediaStreamTrack|null = null
     let videoTrack:MediaStreamTrack|null = null
@@ -32,6 +35,7 @@ export function getFakeMedia(constrants: fakeMediaStreamConstraints){
         // }))
         audioTrack = getAudioTrack(constrants.audio === true ? {channelCount: 1} : constrants.audio);
         tracks.push(audioTrack)
+        audioTracks.push(audioTrack)
     }
     if (constrants.video){
         const defaultVideoConstraints:fakeVideoTrackConstraints = {
@@ -44,6 +48,7 @@ export function getFakeMedia(constrants: fakeMediaStreamConstraints){
         const videoConstraints = Object.assign({}, defaultVideoConstraints, constrants.video === true ? {} : constrants.video)
         videoTrack = getVideoTrack(videoConstraints);
         tracks.push(videoTrack)
+        videoTracks.push(videoTrack)
     }
     return new MediaStream(tracks)
 }
