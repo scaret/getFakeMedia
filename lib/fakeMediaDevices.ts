@@ -41,7 +41,7 @@ export function getFakeMedia(constrants: fakeMediaStreamConstraints){
         const defaultVideoConstraints:fakeVideoTrackConstraints = {
             width: 1024,
             height: 768,
-            frameRate: 120,
+            frameRate: 60,
             content: "Video",
             background: "#ddd",
         };

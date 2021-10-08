@@ -13,6 +13,10 @@ class Clock{
     private frameHistory: {time: Date}[] = []
     private frameHistoryTime = 2000;
     private startTime: number = 0;
+    private requestingNextFrame = false;
+    private interval: any = null;
+    private frameMinInterval: number = 0;
+    private trackEnded: boolean = false;
     constructor(constraints: fakeVideoTrackConstraints) {
         this.constraints = constraints;
         this.canvas = document.createElement("canvas")
@@ -26,16 +30,24 @@ class Clock{
             throw new Error("Not supported")
         }
     }
-    drawFrame (){
+    drawFrame (fromSetInterval:boolean = false){
+        if (this.trackEnded){
+            clearInterval(this.interval);
+            return;
+        }
         var now = new Date();
         this.frameHistory = this.frameHistory.filter((item)=>{
             return now.getTime() - item.time.getTime() < this.frameHistoryTime
         })
         const fps = this.frameHistory.length / Math.min(now.getTime() - this.startTime, this.frameHistoryTime) * 1000
-        if (fps > this.constraints.frameRate){
-            window.requestAnimationFrame(this.drawFrame.bind(this));
+        const frameInterval = this.frameHistory[this.frameHistory.length - 1] ? now.getTime() - this.frameHistory[this.frameHistory.length - 1].time.getTime() : 99999
+        if (fps > this.constraints.frameRate || this.frameMinInterval > frameInterval){
+            if (!fromSetInterval){
+                window.requestAnimationFrame(this.drawFrame.bind(this, false));
+            }
             return;
         }
+        this.requestingNextFrame = false
         this.frameHistory.push({time: now})
 
         const ctx = this.ctx;
@@ -152,14 +164,21 @@ class Clock{
         ctx.stroke();
 
         ctx.restore();
-
-        window.requestAnimationFrame(this.drawFrame.bind(this));
+        this.requestingNextFrame = true
+        window.requestAnimationFrame(this.drawFrame.bind(this, false));
     }
     start (){
         this.startTime = Date.now();
+        this.frameMinInterval = Math.floor(1000 / this.constraints.frameRate)
         this.drawFrame()
+        this.interval = setInterval(this.drawFrame.bind(this, true), 0)
         //@ts-ignore
-        return this.canvas.captureStream(this.constraints.frameRate)
+        const stream:MediaStream = this.canvas.captureStream(this.constraints.frameRate)
+        const videoTrack = stream.getVideoTracks()[0];
+        videoTrack.addEventListener("ended", ()=>{
+            this.trackEnded = true
+        })
+        return stream;
     }
 }
 
