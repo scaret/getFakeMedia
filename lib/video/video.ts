@@ -10,10 +10,9 @@ class Clock{
     private constraints: fakeVideoTrackConstraints;
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private frameHistory: {time: Date}[] = []
+    private frameHistory: {time: number, fromSetInterval: boolean}[] = []
     private frameHistoryTime = 2000;
     private startTime: number = 0;
-    private requestingNextFrame = false;
     private interval: any = null;
     private frameMinInterval: number = 0;
     private trackEnded: boolean = false;
@@ -30,25 +29,29 @@ class Clock{
             throw new Error("Not supported")
         }
     }
-    drawFrame (fromSetInterval:boolean = false){
+    drawFrame (fromSetInterval:boolean = false, tsIn?: number){
+        const ts = Date.now()
         if (this.trackEnded){
             clearInterval(this.interval);
             return;
         }
-        var now = new Date();
         this.frameHistory = this.frameHistory.filter((item)=>{
-            return now.getTime() - item.time.getTime() < this.frameHistoryTime
+            return ts - item.time < this.frameHistoryTime
         })
-        const fps = this.frameHistory.length / Math.min(now.getTime() - this.startTime, this.frameHistoryTime) * 1000
-        const frameInterval = this.frameHistory[this.frameHistory.length - 1] ? now.getTime() - this.frameHistory[this.frameHistory.length - 1].time.getTime() : 99999
-        if (fps > this.constraints.frameRate || this.frameMinInterval > frameInterval){
+        const fps = this.frameHistory.length / Math.min(ts - this.startTime, this.frameHistoryTime) * 1000
+        const frameInterval = this.frameHistory[this.frameHistory.length - 1] ? ts - this.frameHistory[this.frameHistory.length - 1].time : 99999
+        if (
+            // fps超了
+            fps > this.constraints.frameRate ||
+            // 与上一帧间隔短了
+            this.frameMinInterval > frameInterval
+        ){
             if (!fromSetInterval){
                 window.requestAnimationFrame(this.drawFrame.bind(this, false));
             }
             return;
         }
-        this.requestingNextFrame = false
-        this.frameHistory.push({time: now})
+        this.frameHistory.push({time: ts, fromSetInterval})
 
         const ctx = this.ctx;
 
@@ -56,6 +59,7 @@ class Clock{
         ctx.fillStyle = this.constraints.background;
         ctx.fillRect(0,0,this.constraints.width,this.constraints.height);
 
+        const now = new Date(ts);
         ctx.font = "44px serif";
         ctx.fillStyle = "black";
         const text1 = `${this.constraints.content}`
@@ -164,13 +168,12 @@ class Clock{
         ctx.stroke();
 
         ctx.restore();
-        this.requestingNextFrame = true
         window.requestAnimationFrame(this.drawFrame.bind(this, false));
     }
     start (){
         this.startTime = Date.now();
         this.frameMinInterval = Math.floor(1000 / this.constraints.frameRate)
-        this.drawFrame()
+        this.drawFrame(false, performance.now())
         this.interval = setInterval(this.drawFrame.bind(this, true), 0)
         //@ts-ignore
         const stream:MediaStream = this.canvas.captureStream(this.constraints.frameRate)
@@ -178,6 +181,12 @@ class Clock{
         videoTrack.addEventListener("ended", ()=>{
             this.trackEnded = true
         })
+        // setInterval(()=>{
+        //     const cntFromSetInterval = this.frameHistory.filter((item)=>{
+        //         return item.fromSetInterval;
+        //     })
+        //     console.log("cntFromSetInterval", cntFromSetInterval.length, "/", this.frameHistory.length)
+        // }, this.frameHistoryTime)
         return stream;
     }
 }
