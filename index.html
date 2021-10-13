@@ -1,12 +1,15 @@
 <html>
     <video id="video-elem" controls></video>
     <button id="play-btn">Play</button>
+    <div id="qrcode"></div>
     <script src="./assets/axios/dist/axios.min.js"></script>
+    <script src="./assets/qrcode/qrcode.js"></script>
     <script src="./dist/fakeMediaDevices.js"></script>
     <script>
+        new QRCode(document.getElementById("qrcode"), "http://jindo.dev.naver.com/collie");
         const main = async ()=>{
 
-            const mediaStream = fakeMediaDevices.getFakeMedia({
+            const fakeMedia = fakeMediaDevices.getFakeMedia({
                 audio: {
                     channelCount: 1,
                     // left: false,
@@ -15,7 +18,10 @@
                 },
                 video: true
             })
-            document.getElementById("video-elem").srcObject = mediaStream
+            fakeMedia.video.hookDrawFrame = ()=>{
+                console.log("hookDrawFrame");
+            }
+            document.getElementById("video-elem").srcObject = fakeMedia.getMediaStream()
         }
 
         document.getElementById("play-btn").onclick = ()=>{

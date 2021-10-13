@@ -25,17 +25,39 @@ interface fakeMediaStreamConstraints{
 export const audioTracks:MediaStreamTrack[] = []
 export const videoTracks:MediaStreamTrack[] = []
 
+class FakeMediaStream{
+    audio?: {
+        track: MediaStreamTrack;
+        context: AudioContext;
+        destination: MediaStreamAudioDestinationNode;
+    };
+    video?: {
+        track: MediaStreamTrack;
+        context: CanvasRenderingContext2D;
+        canvas: HTMLCanvasElement;
+        hookDrawFrame?: () => any;
+    }
+    getMediaStream (){
+        const tracks:MediaStreamTrack[] = [];
+        if (this.audio){
+            tracks.push(this.audio.track);
+        }
+        if (this.video){
+            tracks.push(this.video.track);
+        }
+        const mediaStream = new MediaStream(tracks);
+        return mediaStream;
+    }
+}
+
 export function getFakeMedia(constrants: fakeMediaStreamConstraints){
-    let audioTrack:MediaStreamTrack|null = null
-    let videoTrack:MediaStreamTrack|null = null
-    const tracks:MediaStreamTrack[] = [];
+    const fakeMediaStream = new FakeMediaStream();
     if (constrants.audio){
         // promises.push(getAudioTrack().then((track)=>{
         //     audioTrack = track
         // }))
-        audioTrack = getAudioTrack(constrants.audio === true ? {channelCount: 1} : constrants.audio);
-        tracks.push(audioTrack)
-        audioTracks.push(audioTrack)
+        fakeMediaStream.audio = getAudioTrack(constrants.audio === true ? {channelCount: 1} : constrants.audio);
+        audioTracks.push(fakeMediaStream.audio.track)
     }
     if (constrants.video){
         const defaultVideoConstraints:fakeVideoTrackConstraints = {
@@ -46,9 +68,9 @@ export function getFakeMedia(constrants: fakeMediaStreamConstraints){
             background: "#ddd",
         };
         const videoConstraints = Object.assign({}, defaultVideoConstraints, constrants.video === true ? {} : constrants.video)
-        videoTrack = getVideoTrack(videoConstraints);
-        tracks.push(videoTrack)
-        videoTracks.push(videoTrack)
+        const videoTrackInfo = getVideoTrack(videoConstraints);
+        fakeMediaStream.video = videoTrackInfo;
+        videoTracks.push(videoTrackInfo.track)
     }
-    return new MediaStream(tracks)
+    return fakeMediaStream;
 }

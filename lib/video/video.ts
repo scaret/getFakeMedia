@@ -8,14 +8,20 @@ export interface fakeVideoTrackConstraints{
 
 class Clock{
     private constraints: fakeVideoTrackConstraints;
-    private canvas: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
+    canvas: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
     private frameHistory: {time: number, fromSetInterval: boolean}[] = []
     private frameHistoryTime = 2000;
     private startTime: number = 0;
     private interval: any = null;
     private frameMinInterval: number = 0;
     private trackEnded: boolean = false;
+    private videoInfo?: {
+        hookDrawFrame?: () => any;
+        track: MediaStreamTrack;
+        canvas: HTMLCanvasElement;
+        context: CanvasRenderingContext2D;
+    }
     constructor(constraints: fakeVideoTrackConstraints) {
         this.constraints = constraints;
         this.canvas = document.createElement("canvas")
@@ -168,7 +174,12 @@ class Clock{
         ctx.stroke();
 
         ctx.restore();
-        window.requestAnimationFrame(this.drawFrame.bind(this, false));
+        if (this.videoInfo?.hookDrawFrame){
+            this.videoInfo.hookDrawFrame()
+        }
+        if (!fromSetInterval){
+            window.requestAnimationFrame(this.drawFrame.bind(this, false));
+        }
     }
     start (){
         this.startTime = Date.now();
@@ -187,12 +198,17 @@ class Clock{
         //     })
         //     console.log("cntFromSetInterval", cntFromSetInterval.length, "/", this.frameHistory.length)
         // }, this.frameHistoryTime)
-        return stream;
+        this.videoInfo  = {
+            track: videoTrack,
+            context: this.ctx,
+            canvas: this.canvas,
+        }
+        return this.videoInfo;
     }
 }
 
 export function getVideoTrack(constraints: fakeVideoTrackConstraints){
     const clock = new Clock(constraints);
-    const mediaStream:MediaStream = clock.start()
-    return mediaStream.getVideoTracks()[0];
+    const result = clock.start()
+    return result;
 }

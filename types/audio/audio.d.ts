@@ -9,4 +9,8 @@ export interface fakeAudioTrackConstraints {
     right?: boolean | ArrayBufferInput;
     channelCount?: 1 | 2;
 }
-export declare function getAudioTrack(constraint: fakeAudioTrackConstraints): MediaStreamTrack;
+export declare function getAudioTrack(constraint: fakeAudioTrackConstraints): {
+    track: MediaStreamTrack;
+    context: AudioContext;
+    destination: MediaStreamAudioDestinationNode;
+};

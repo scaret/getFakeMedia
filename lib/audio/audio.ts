@@ -91,6 +91,10 @@ export function getAudioTrack(constraint: fakeAudioTrackConstraints){
             })
         }
     }
-    const audioTrack = destination.stream.getAudioTracks()[0];
-    return audioTrack;
+    const track = destination.stream.getAudioTracks()[0];
+    return {
+        track,
+        context,
+        destination,
+    };
 }

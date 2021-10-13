@@ -19,5 +19,19 @@ interface fakeMediaStreamConstraints {
 }
 export declare const audioTracks: MediaStreamTrack[];
 export declare const videoTracks: MediaStreamTrack[];
-export declare function getFakeMedia(constrants: fakeMediaStreamConstraints): MediaStream;
+declare class FakeMediaStream {
+    audio?: {
+        track: MediaStreamTrack;
+        context: AudioContext;
+        destination: MediaStreamAudioDestinationNode;
+    };
+    video?: {
+        track: MediaStreamTrack;
+        context: CanvasRenderingContext2D;
+        canvas: HTMLCanvasElement;
+        hookDrawFrame?: () => any;
+    };
+    getMediaStream(): MediaStream;
+}
+export declare function getFakeMedia(constrants: fakeMediaStreamConstraints): FakeMediaStream;
 export {};

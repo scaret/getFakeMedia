@@ -5,4 +5,9 @@ export interface fakeVideoTrackConstraints {
     content: string;
     background: string;
 }
-export declare function getVideoTrack(constraints: fakeVideoTrackConstraints): MediaStreamTrack;
+export declare function getVideoTrack(constraints: fakeVideoTrackConstraints): {
+    hookDrawFrame?: (() => any) | undefined;
+    track: MediaStreamTrack;
+    canvas: HTMLCanvasElement;
+    context: CanvasRenderingContext2D;
+};
