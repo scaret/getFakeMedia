@@ -1,4 +1,4 @@
-import {ArrayBufferInput, fakeAudioTrackConstraints, getAudioTrack} from "./audio/audio";
+import {ChannelSettings, fakeAudioTrackConstraints, getAudioTrack} from "./audio/audio";
 import {fakeVideoTrackConstraints, getVideoTrack} from "./video/video";
 
 export interface videoTrackConstraintInput{
@@ -11,9 +11,9 @@ export interface videoTrackConstraintInput{
 
 export interface audioTrackConstraintInput{
     sampleRate?: number;
-    mono?: ArrayBufferInput;
-    left?: boolean|ArrayBufferInput;
-    right?: boolean|ArrayBufferInput;
+    mono?: ChannelSettings;
+    left?: boolean|ChannelSettings;
+    right?: boolean|ChannelSettings;
     channelCount?: 1|2;
 }
 

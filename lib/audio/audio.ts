@@ -1,23 +1,71 @@
-const brysj = require("./brysj.mp3")
-const bbdbbjyy = require("./bbdbbjyy.mp3")
-const mmdmmjnn = require("./mmdmmjnn.mp3")
+const brysj:ArrayBuffer = require("./brysj.mp3")
+const bbdbbjyy:ArrayBuffer = require("./bbdbbjyy.mp3")
+const mmdmmjwp:ArrayBuffer = require("./mmdmmjwp.mp3")
 
-export interface ArrayBufferInput{
-    data: ArrayBuffer;
+export type BUILTIN_AB = "brysj"|"bbdbbjyy"|"mmdmmjwp";
+
+const builtinABMap = {
+    brysj,
+    bbdbbjyy,
+    mmdmmjwp,
+};
+
+export interface ChannelSettings{
+    data: ArrayBuffer | BUILTIN_AB;
     loop: boolean;
+    gain: number;
+    noise?: {
+        gain: number;
+    }
 }
 
 export interface fakeAudioTrackConstraints{
     sampleRate?: number;
-    mono?: ArrayBufferInput;
-    left?: boolean|ArrayBufferInput;
-    right?: boolean|ArrayBufferInput;
+    mono?: ChannelSettings;
+    left?: boolean|ChannelSettings;
+    right?: boolean|ChannelSettings;
     channelCount?: 1|2;
 }
 
 const ctxMap: {
     [sampleRate: number]: AudioContext
 } = {};
+
+function addNoise(options: {
+    context: AudioContext,
+    destination:AudioNode,
+    inputNode: AudioNode,
+    gain: number,
+    output?: number,
+    input?: number,
+  }){
+
+    const scriptNode = options.context.createScriptProcessor(4096, 1, 1);
+    scriptNode.connect(options.destination, options.output || 0, options.input || 0);
+    options.inputNode.connect(scriptNode, 0, 0);
+
+    scriptNode.onaudioprocess = function(audioProcessingEvent) {
+        // The input buffer is the song we loaded earlier
+        var inputBuffer = audioProcessingEvent.inputBuffer;
+
+        // The output buffer contains the samples that will be modified and played
+        var outputBuffer = audioProcessingEvent.outputBuffer;
+
+        // Loop through the output channels (in this case there is only one)
+        for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
+            var inputData = inputBuffer.getChannelData(channel);
+            var outputData = outputBuffer.getChannelData(channel);
+
+            // Loop through the 4096 samples
+            for (var sample = 0; sample < inputBuffer.length; sample++) {
+                // make output equal to the same as the input
+                // add noise to each output sample
+                outputData[sample] = inputData[sample];
+                outputData[sample] += ((Math.random() * 2) - 1) * options.gain;
+            }
+        }
+    }
+}
 
 export function getAudioTrack(constraint: fakeAudioTrackConstraints){
     const {
@@ -38,7 +86,6 @@ export function getAudioTrack(constraint: fakeAudioTrackConstraints){
     let destination: MediaStreamAudioDestinationNode;
     try{
         destination = new MediaStreamAudioDestinationNode(context, {channelCount});
-        console.log("ChannelCount", channelCount);
     }catch(e){
         console.error(e)
         //@ts-ignore
@@ -48,45 +95,91 @@ export function getAudioTrack(constraint: fakeAudioTrackConstraints){
             throw e;
         }
     }
+
     if (channelCount === 1){
-        const mono: ArrayBufferInput = constraint.mono || {
+        const mono: ChannelSettings = constraint.mono || {
             data: brysj.slice(0),
-            loop: true
+            loop: true,
+            gain: 1,
         };
-        context.decodeAudioData(mono.data, (buffer:AudioBuffer)=>{
+        const data = typeof mono.data === "string" ? builtinABMap[mono.data].slice(0) : mono.data;
+        context.decodeAudioData(data, (buffer:AudioBuffer)=>{
             const audioSource = context.createBufferSource()
             audioSource.buffer = buffer;
             audioSource.loop = mono.loop;
-            audioSource.connect(destination);
+            const gainNode = context.createGain();
+            gainNode.gain.value = mono.gain;
+            audioSource.connect(gainNode);
+            if (mono.noise){
+                addNoise({
+                    context,
+                    destination,
+                    inputNode: gainNode,
+                    gain: mono.noise.gain,
+                })
+            }else{
+                gainNode.connect(destination);
+            }
             audioSource.start()
         })
     } else if (channelCount === 2){
         const merger = context.createChannelMerger(channelCount);
         merger.connect(destination);
-        const duration = 1.764;
         if (constraint.left !== false){
-            const left = typeof constraint.left === "object" ? constraint.left : {
+            const left:ChannelSettings = typeof constraint.left === "object" ? constraint.left : {
                 data: bbdbbjyy.slice(0),
                 loop: true,
+                gain: 1,
             };
-            context.decodeAudioData(left.data, (buffer:AudioBuffer)=>{
+            const data = (typeof left.data === "string") ? builtinABMap[left.data] : left.data
+            context.decodeAudioData(data, (buffer:AudioBuffer)=>{
                 const audioSource = context.createBufferSource()
                 audioSource.buffer = buffer;
                 audioSource.loop = left.loop;
-                audioSource.connect(merger, 0, 0);
+                const gainNode = context.createGain();
+                gainNode.gain.value = left.gain;
+                audioSource.connect(gainNode)
+                if (left.noise){
+                    addNoise({
+                        context,
+                        destination: merger,
+                        inputNode: gainNode,
+                        gain: left.noise.gain,
+                        output: 0,
+                        input: 0,
+                    })
+                }else{
+                    gainNode.connect(merger, 0, 0);
+                }
                 audioSource.start(0)
             })
         }
         if (constraint.right !== false){
-            const right = typeof constraint.right === "object" ? constraint.right : {
-                data: mmdmmjnn.slice(0),
-                loop: true
+            const right:ChannelSettings = typeof constraint.right === "object" ? constraint.right : {
+                data: mmdmmjwp.slice(0),
+                loop: true,
+                gain: 1,
             };
-            context.decodeAudioData(right.data, (buffer:AudioBuffer)=>{
+            const data = (typeof right.data === "string" ? builtinABMap[right.data].slice(0) : right.data);
+            context.decodeAudioData(data, (buffer:AudioBuffer)=>{
                 const audioSource = context.createBufferSource()
                 audioSource.buffer = buffer;
                 audioSource.loop = right.loop;
-                audioSource.connect(merger, 0, 1);
+                const gainNode = context.createGain();
+                gainNode.gain.value = right.gain;
+                audioSource.connect(gainNode)
+                if (right.noise){
+                    addNoise({
+                        context,
+                        destination: merger,
+                        inputNode: gainNode,
+                        gain: right.noise.gain,
+                        output: 0,
+                        input: 1,
+                    })
+                }else{
+                    gainNode.connect(merger, 0, 1);
+                }
                 audioSource.start(0)
             })
         }

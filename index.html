@@ -6,21 +6,44 @@
     <script src="./assets/qrcode/qrcode.js"></script>
     <script src="./dist/fakeMediaDevices.js"></script>
     <script>
-        new QRCode(document.getElementById("qrcode"), "http://jindo.dev.naver.com/collie");
+        // new QRCode(document.getElementById("qrcode"), "http://jindo.dev.naver.com/collie");
         const main = async ()=>{
 
             const fakeMedia = fakeMediaDevices.getFakeMedia({
                 audio: {
                     channelCount: 1,
+                    mono: {
+                        data: "bbdbbjyy",
+                        loop: true,
+                        gain: 1,
+                        // noise: {
+                        //     gain: 0.1
+                        // }
+                    },
                     // left: false,
-                    // right: true,
-                    // mono: true
+                    left: {
+                        data: "bbdbbjyy",
+                        loop: true,
+                        gain: 1,
+                        // noise: {
+                        //     gain: 0.1
+                        // }
+                    },
+                    // right: false,
+                    right: {
+                        data: "mmdmmjnn",
+                        loop: true,
+                        gain: 0,
+                        noise: {
+                            gain: 0.1
+                        }
+                    },
                 },
                 video: true
             })
-            fakeMedia.video.hookDrawFrame = ()=>{
-                console.log("hookDrawFrame");
-            }
+            // fakeMedia.video.hookDrawFrame = ()=>{
+            //     console.log("hookDrawFrame");
+            // }
             document.getElementById("video-elem").srcObject = fakeMedia.getMediaStream()
         }
 
