@@ -83,15 +83,33 @@ export function getAudioTrack(constraint: fakeAudioTrackConstraints){
         }
         ctxMap[sampleRate] = context;
     }
+    if (context.state !== "running"){
+        const btn = document.createElement("h1")
+        btn.innerText = "受浏览器自动播放策略影响，需点击此处以恢复音频播放"
+        btn.onclick = ()=>{
+            context.resume().then(()=>{
+                console.log("context状态目前已恢复至", context.state)
+            }).catch(e =>{
+                console.error(e.name, e.message, e)
+            });
+            btn.parentNode?.removeChild(btn);
+        }
+        btn.style.position = "fixed";
+        btn.style.background = "yellow";
+        btn.style.top = "0";
+        btn.style.width = "100%"
+
+        document.body.appendChild(btn)
+    }
     let destination: MediaStreamAudioDestinationNode;
     try{
         destination = new MediaStreamAudioDestinationNode(context, {channelCount});
     }catch(e){
-        console.error(e)
         //@ts-ignore
         if (e.name === "TypeError"){
             destination = context.createMediaStreamDestination();
         }else{
+            console.error(e);
             throw e;
         }
     }
