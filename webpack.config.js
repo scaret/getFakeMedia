@@ -6,6 +6,7 @@ module.exports = {
         fakeMediaDevices: "./lib/fakeMediaDevices.ts"
     },
     output: {
+        devtoolNamespace: 'fakeMediaDevices',
         path: path.join(__dirname, 'dist'),
             library: '[name]',
             libraryTarget: 'umd',

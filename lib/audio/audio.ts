@@ -30,6 +30,33 @@ export interface fakeAudioTrackConstraints{
 const ctxMap: {
     [sampleRate: number]: AudioContext
 } = {};
+(window as any).ctxMap = ctxMap;
+
+const btn = document.createElement("h1")
+btn.innerText = "受浏览器自动播放策略影响，需点击此处以恢复音频播放"
+btn.onclick = ()=>{
+    for (let sampleRate in ctxMap){
+        (function(context){
+            context.resume().then(()=>{
+                console.log("context状态目前已恢复至", context.state)
+            }).catch(e =>{
+                console.error(e.name, e.message, e)
+            });
+        })(ctxMap[sampleRate])
+    }
+    hideAutoPlayBanner()
+}
+btn.style.position = "fixed";
+btn.style.background = "yellow";
+btn.style.top = "0";
+btn.style.width = "100%"
+
+const showAutoPlayBanner = ()=>{
+    document.body.appendChild(btn)
+}
+const hideAutoPlayBanner = ()=>{
+    btn.parentNode?.removeChild(btn)
+}
 
 function addNoise(options: {
     context: AudioContext,
@@ -83,24 +110,7 @@ export function getAudioTrack(constraint: fakeAudioTrackConstraints){
         }
         ctxMap[sampleRate] = context;
     }
-    if (context.state !== "running"){
-        const btn = document.createElement("h1")
-        btn.innerText = "受浏览器自动播放策略影响，需点击此处以恢复音频播放"
-        btn.onclick = ()=>{
-            context.resume().then(()=>{
-                console.log("context状态目前已恢复至", context.state)
-            }).catch(e =>{
-                console.error(e.name, e.message, e)
-            });
-            btn.parentNode?.removeChild(btn);
-        }
-        btn.style.position = "fixed";
-        btn.style.background = "yellow";
-        btn.style.top = "0";
-        btn.style.width = "100%"
-
-        document.body.appendChild(btn)
-    }
+    context.resume().catch(showAutoPlayBanner);
     let destination: MediaStreamAudioDestinationNode;
     try{
         destination = new MediaStreamAudioDestinationNode(context, {channelCount});

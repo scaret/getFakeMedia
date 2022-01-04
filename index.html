@@ -1,55 +1,100 @@
-<html>
-    <video id="video-elem" controls></video>
-    <button id="play-btn">Play</button>
-    <div id="qrcode"></div>
-    <script src="./assets/axios/dist/axios.min.js"></script>
-    <script src="./assets/qrcode/qrcode.js"></script>
-    <script src="./dist/fakeMediaDevices.js"></script>
-    <script>
-        // new QRCode(document.getElementById("qrcode"), "http://jindo.dev.naver.com/collie");
-        const main = async ()=>{
+<html xmlns="http://www.w3.org/1999/html">
+    <head>
+        <meta charset="utf-8">
+        <link rel="icon" href="data:,">
+    </head>
+    <body>
+    <h1>fakeMediaDevices.getFakeMedia</h1>
+    <a href="https://github.com/scaret/getFakeMedia" target="_blank">Github</a>
 
+    <h2>1. 默认音频流+视频流</h2>
+    <pre>
+        const fakeMedia = fakeMediaDevices.getFakeMedia({
+            audio: true,
+            video: true,
+        })
+        const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
+        document.getElementById("video-default").srcObject = fakeMediaStream
+    </pre>
+    <button id="play-btn-default">播放</button>
+    <video id="video-default" controls autoplay playsinline></video>
+    <script>
+        document.getElementById("play-btn-default").onclick = async ()=>{
+            const fakeMedia = fakeMediaDevices.getFakeMedia({
+                audio: true,
+                video: true,
+            })
+            const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
+            document.getElementById("video-default").srcObject = fakeMediaStream
+        }
+    </script>
+
+
+    <h2>2. 双声道音频流+指定宽高、帧率的视频流。其中右声道指定音量，并伴有噪声</h2>
+    <pre>
+        const fakeMedia = fakeMediaDevices.getFakeMedia({
+            audio: {
+                channelCount: 2,
+                left: {
+                    data: "bbdbbjyy",
+                    loop: true,
+                    gain: 1,
+                },
+                right: {
+                    data: "mmdmmjwp",
+                    loop: true,
+                    gain: 0.5,
+                    noise: {
+                        gain: 0.05,
+                    },
+                },
+            },
+            video: {
+                width: 1024,
+                height: 768,
+                frameRate: 15,
+            },
+        })
+        const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
+        document.getElementById("video-stereo").srcObject = fakeMediaStream
+    </pre>
+    <button id="play-btn-stereo">播放</button>
+    <video id="video-stereo" controls autoplay playsinline></video>
+    <script>
+        document.getElementById("play-btn-stereo").onclick = async ()=>{
             const fakeMedia = fakeMediaDevices.getFakeMedia({
                 audio: {
-                    channelCount: 1,
-                    mono: {
-                        data: "bbdbbjyy",
-                        loop: true,
-                        gain: 1,
-                        // noise: {
-                        //     gain: 0.1
-                        // }
-                    },
-                    // left: false,
+                    channelCount: 2,
                     left: {
                         data: "bbdbbjyy",
                         loop: true,
                         gain: 1,
-                        // noise: {
-                        //     gain: 0.1
-                        // }
                     },
-                    // right: false,
                     right: {
-                        data: "mmdmmjnn",
+                        data: "mmdmmjwp",
                         loop: true,
-                        gain: 0,
+                        gain: 0.5,
                         noise: {
-                            gain: 0.1
-                        }
+                            gain: 0.05,
+                        },
                     },
                 },
-                video: true
+                video: {
+                    width: 1024,
+                    height: 768,
+                    frameRate: 15,
+                },
             })
-            // fakeMedia.video.hookDrawFrame = ()=>{
-            //     console.log("hookDrawFrame");
-            // }
-            document.getElementById("video-elem").srcObject = fakeMedia.getMediaStream()
+            const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
+            document.getElementById("video-stereo").srcObject = fakeMediaStream
         }
+    </script>
+    <script src="./assets/axios/dist/axios.min.js"></script>
+    <script src="./assets/qrcode/qrcode.js"></script>
+    <script src="./dist/fakeMediaDevices.js"></script>
+    </body>
 
-        document.getElementById("play-btn").onclick = ()=>{
-            main()
-            document.getElementById("video-elem").play()
-        }
+    <script>
+        // new QRCode(document.getElementById("qrcode"), "http://jindo.dev.naver.com/collie");
     </script>
 </html>
