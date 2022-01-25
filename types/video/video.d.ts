@@ -1,9 +1,11 @@
 export interface fakeVideoTrackConstraints {
+    type: "clock" | "background";
     width: number;
     height: number;
     frameRate: number;
     content: string;
-    background: string;
+    bgColor?: string;
+    bgImg?: CanvasImageSource;
 }
 export declare function getVideoTrack(constraints: fakeVideoTrackConstraints): {
     hookDrawFrame?: (() => any) | undefined;

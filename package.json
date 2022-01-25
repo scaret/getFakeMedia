@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/scaret/getFakeMedia#readme",
   "devDependencies": {
+    "@types/w3c-image-capture": "^1.0.5",
     "arraybuffer-loader": "^1.0.8",
     "badcert": "^4.1.0",
     "ts-loader": "^9.2.6",

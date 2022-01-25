@@ -61,13 +61,16 @@ export function getFakeMedia(constrants: fakeMediaStreamConstraints){
     }
     if (constrants.video){
         const defaultVideoConstraints:fakeVideoTrackConstraints = {
+            type: "clock",
             width: 1024,
             height: 768,
             frameRate: 60,
             content: "Video",
-            background: "#ddd",
         };
         const videoConstraints = Object.assign({}, defaultVideoConstraints, constrants.video === true ? {} : constrants.video)
+        if (!videoConstraints.bgColor && !videoConstraints.bgImg){
+            videoConstraints.bgColor = "#ddd";
+        }
         const videoTrackInfo = getVideoTrack(videoConstraints);
         fakeMediaStream.video = videoTrackInfo;
         videoTracks.push(videoTrackInfo.track)
