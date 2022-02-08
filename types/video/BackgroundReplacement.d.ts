@@ -1,10 +1,12 @@
-/// <reference types="w3c-image-capture" />
 import { fakeVideoTrackConstraints } from "./video";
 export declare class BackgroundReplacement {
     private constraints;
     camera: {
         track?: MediaStreamTrack;
-        imageCapture?: ImageCapture;
+        stream?: MediaStream;
+        imageCaptureVideo?: HTMLVideoElement;
+        imageCaptureCanvas?: HTMLCanvasElement;
+        imageCaptureContext?: CanvasRenderingContext2D;
     };
     frameRequest: {
         current: number;

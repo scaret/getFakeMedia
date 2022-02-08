@@ -1,3 +1,5 @@
+import {autoplayBanner, showAutoPlayBanner} from "../autoplayBanner";
+
 const brysj:ArrayBuffer = require("./brysj.mp3")
 const bbdbbjyy:ArrayBuffer = require("./bbdbbjyy.mp3")
 const mmdmmjwp:ArrayBuffer = require("./mmdmmjwp.mp3")
@@ -32,9 +34,7 @@ const ctxMap: {
 } = {};
 (window as any).ctxMap = ctxMap;
 
-const btn = document.createElement("h1")
-btn.innerText = "受浏览器自动播放策略影响，需点击此处以恢复音频播放"
-btn.onclick = ()=>{
+autoplayBanner.addEventListener("click", ()=>{
     for (let sampleRate in ctxMap){
         (function(context){
             context.resume().then(()=>{
@@ -44,19 +44,7 @@ btn.onclick = ()=>{
             });
         })(ctxMap[sampleRate])
     }
-    hideAutoPlayBanner()
-}
-btn.style.position = "fixed";
-btn.style.background = "yellow";
-btn.style.top = "0";
-btn.style.width = "100%"
-
-const showAutoPlayBanner = ()=>{
-    document.body.appendChild(btn)
-}
-const hideAutoPlayBanner = ()=>{
-    btn.parentNode?.removeChild(btn)
-}
+})
 
 function addNoise(options: {
     context: AudioContext,

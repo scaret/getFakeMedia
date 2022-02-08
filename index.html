@@ -89,6 +89,43 @@
             document.getElementById("video-stereo").srcObject = fakeMediaStream
         }
     </script>
+
+
+    <h2>3. 背景替换</h2>
+    <pre>
+        const bgImg = new Image()
+        bgImg.src = "./assets/img/mountain.jpeg"
+        document.getElementById("play-btn-background").onclick = async ()=>{
+            const fakeMedia = fakeMediaDevices.getFakeMedia({
+                audio: true,
+                video: {
+                    type: "background",
+                    bgImg,
+                },
+            })
+            const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
+            document.getElementById("video-background").srcObject = fakeMediaStream
+        }
+    </pre>
+    <button id="play-btn-background">播放</button>
+    <video id="video-background" controls autoplay playsinline></video>
+    <script>
+        const bgImg = new Image()
+        bgImg.src = "./assets/img/mountain.jpeg"
+        document.getElementById("play-btn-background").onclick = async ()=>{
+            const fakeMedia = fakeMediaDevices.getFakeMedia({
+                audio: true,
+                video: {
+                    type: "background",
+                    bgImg,
+                },
+            })
+            const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
+            document.getElementById("video-background").srcObject = fakeMediaStream
+        }
+    </script>
+
+
     <script src="./assets/axios/dist/axios.min.js"></script>
     <script src="./assets/qrcode/qrcode.js"></script>
     <script src="./dist/fakeMediaDevices.js"></script>

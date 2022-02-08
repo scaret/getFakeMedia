@@ -1,11 +1,15 @@
 import {fakeVideoTrackConstraints} from "./video";
 import {SelfieSegmentation} from "../../selfie_segmentation/selfie_segmentation";
+import {autoplayBanner, hideAutoPlayBanner, showAutoPlayBanner} from "../autoplayBanner";
 
 export class BackgroundReplacement {
     private constraints: fakeVideoTrackConstraints;
     camera: {
         track?: MediaStreamTrack;
-        imageCapture?: ImageCapture;
+        stream?: MediaStream;
+        imageCaptureVideo?: HTMLVideoElement;
+        imageCaptureCanvas?: HTMLCanvasElement;
+        imageCaptureContext?: CanvasRenderingContext2D;
     } = {}
     frameRequest:{
         current: number,
@@ -32,8 +36,8 @@ export class BackgroundReplacement {
     }
     private selfieSegmentation = new SelfieSegmentation({
         locateFile: (file)=>{
-            // const url = `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/${file}`
-            const url = `/selfie_segmentation/locateFiles/${file}`
+            const url = `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/${file}`
+            // const url = `/selfie_segmentation/locateFiles/${file}`
             return url;
         }
     })
@@ -58,24 +62,17 @@ export class BackgroundReplacement {
         this.frameRequest.startTime = Date.now()
         this.frameRequest.current++
         this.frameRequest.total++
-        if (!this.camera.imageCapture){
+
+        const settings = this.camera.track?.getSettings()
+        if (!this.camera.imageCaptureCanvas || !settings?.width || !settings?.height || !this.camera.imageCaptureContext || !this.camera.imageCaptureVideo){
+            console.error("Env not ready")
             return;
         }
-        let imageBitMap
-        try{
-            imageBitMap = await this.camera.imageCapture.grabFrame()
-        }catch(e:any){
-            console.error(e.name, e.message, this.camera.track?.readyState, e)
-            await new Promise((res)=>{
-                setTimeout(res, 100)
-            })
-            this.frameRequest.current--
-            this.requestFrame()
-            return;
-        }
+        this.camera.imageCaptureCanvas.width = settings.width
+        this.camera.imageCaptureCanvas.height = settings.height
+        this.camera.imageCaptureContext.drawImage(this.camera.imageCaptureVideo, 0, 0)
         this.selfieSegmentation.send({
-            // @ts-ignore
-            image: imageBitMap
+            image: this.camera.imageCaptureCanvas
         })
     }
     drawBackground(){
@@ -126,7 +123,6 @@ export class BackgroundReplacement {
 
             }
         })
-        // document.body.appendChild(this.camera.video)
         navigator.mediaDevices.getUserMedia({
             video: {
                 width: this.constraints.width,
@@ -134,10 +130,39 @@ export class BackgroundReplacement {
                 frameRate: this.constraints.frameRate,
             }
         }).then((mediaStream)=>{
+            this.camera.stream = mediaStream
             this.camera.track = mediaStream.getVideoTracks()[0]
-            this.camera.imageCapture = new ImageCapture(this.camera.track)
-            const settings = this.camera.track.getSettings()
-            this.requestFrame()
+            this.camera.imageCaptureCanvas = document.createElement("canvas")
+            this.camera.imageCaptureCanvas.className = "imageCaptureCanvas"
+            // document.body.appendChild(this.camera.imageCaptureCanvas)
+            const imageCaptureContext = this.camera.imageCaptureCanvas.getContext("2d")
+            if (!imageCaptureContext){
+                throw new Error("Context Error")
+            }
+            this.camera.imageCaptureContext = imageCaptureContext;
+            this.camera.imageCaptureVideo = document.createElement("video")
+            this.camera.imageCaptureVideo.srcObject = mediaStream
+            this.camera.imageCaptureVideo.setAttribute("playsinline", "playsinline")
+            this.camera.imageCaptureVideo.setAttribute("muted", "muted")
+            this.camera.imageCaptureVideo.setAttribute("autoplay", "autoplay")
+            this.camera.imageCaptureVideo.className = "imageCaptureVideo"
+            // document.body.appendChild(this.camera.imageCaptureVideo)
+            this.camera.imageCaptureVideo.play()
+            this.camera.imageCaptureVideo.addEventListener("playing", ()=>{
+                console.log("Playing", this.frameRequest.current)
+                if (!this.frameRequest.current){
+                    this.requestFrame()
+                }
+            })
+            autoplayBanner.addEventListener("click", ()=>{
+                if (this.camera.imageCaptureVideo){
+                    this.camera.imageCaptureVideo.play()
+                }
+            })
+            this.camera.imageCaptureVideo.addEventListener("pause", ()=>{
+                console.log("Paused", this.frameRequest.current)
+                showAutoPlayBanner()
+            })
         })
         if (this.canvas){
             this.canvas.width = this.constraints.width
