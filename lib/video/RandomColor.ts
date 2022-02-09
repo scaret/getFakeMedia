@@ -1,5 +1,9 @@
 import {fakeVideoTrackConstraints} from "./video";
 
+const randomArrays:{
+    [size:number]: Uint8ClampedArray[]
+} = {}
+
 export class RandomColor{
     private constraints: fakeVideoTrackConstraints;
     canvas: HTMLCanvasElement;
@@ -58,19 +62,37 @@ export class RandomColor{
         this.drawBackground()
 
         // STARTOF随机颜色
-        const imageData = ctx.getImageData(0, 0, this.constraints.width, this.constraints.height)
-        for (let left = 0; left < this.constraints.width; left++){
-            for (let top = 0 ; top < this.constraints.height; top++) {
-                let randomNum = Math.floor(Math.random() * 16777216)
-                imageData.data[(left * this.constraints.height + top) * 4 + 0] = randomNum % 256
-                randomNum = randomNum >> 8
-                imageData.data[(left * this.constraints.height + top) * 4 + 1] = randomNum % 256
-                randomNum = randomNum >> 8
-                imageData.data[(left * this.constraints.height + top) * 4 + 2] = randomNum % 256
-                randomNum = randomNum >> 8
-                imageData.data[(left * this.constraints.height + top) * 4 + 3] = 255
+        const size = this.constraints.width * this.constraints.height * 4
+        if (!randomArrays[size]){
+            // 随机60帧数据
+            randomArrays[size] = []
+            const powNum = 2
+            const logPowNum = Math.log(powNum)
+            for (let i = 0; i < 60; i++){
+                randomArrays[size][i] = new Uint8ClampedArray(size)
+                for(let left = 0; left< this.constraints.width; left++){
+                    const flooredLeft = left < 4 ? left : Math.pow(powNum, Math.floor(Math.log(left) / logPowNum))
+                    for(let top = 0; top < this.constraints.height; top++){
+                        const flooredTop = top < 4 ? top : Math.pow(powNum, Math.floor(Math.log(top) / logPowNum))
+                        if (flooredLeft === left && flooredTop === top){
+                            let rand = Math.floor(Math.random() * 256 * 256 * 256)
+                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 0] = rand % 256
+                            rand = Math.floor(rand / 256)
+                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 1] = rand % 256
+                            rand = Math.floor(rand / 256)
+                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 2] = rand % 256
+                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 3] = 255
+                        }else{
+                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 0] = randomArrays[size][i][(flooredLeft + flooredTop * this.constraints.width) * 4 + 0]
+                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 1] = randomArrays[size][i][(flooredLeft + flooredTop * this.constraints.width) * 4 + 1]
+                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 2] = randomArrays[size][i][(flooredLeft + flooredTop * this.constraints.width) * 4 + 2]
+                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 3] = randomArrays[size][i][(flooredLeft + flooredTop * this.constraints.width) * 4 + 3]
+                        }
+                    }
+                }
             }
         }
+        const imageData = new ImageData(randomArrays[size][ts % 60], this.constraints.width, this.constraints.height)
         ctx.putImageData(imageData, 0, 0)
         // ENDOF随机颜色
 
@@ -109,7 +131,7 @@ export class RandomColor{
         this.startTime = Date.now();
         this.frameMinInterval = Math.floor(1000 / this.constraints.frameRate)
         this.drawFrame(false, performance.now())
-        // this.interval = setInterval(this.drawFrame.bind(this, true), 0)
+        this.interval = setInterval(this.drawFrame.bind(this, true), 0)
         //@ts-ignore
         const stream:MediaStream = this.canvas.captureStream(this.constraints.frameRate)
         const videoTrack = stream.getVideoTracks()[0];
