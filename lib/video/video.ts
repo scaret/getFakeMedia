@@ -1,8 +1,9 @@
 import {Clock} from "./Clock";
 import {BackgroundReplacement} from "./BackgroundReplacement";
+import {RandomColor} from "./RandomColor";
 
 export interface fakeVideoTrackConstraints{
-    type: "clock"|"background";
+    type: "clock"|"background"|"randomcolor";
     width: number;
     height: number;
     frameRate: number;
@@ -17,6 +18,11 @@ export function getVideoTrack(constraints: fakeVideoTrackConstraints){
     if (constraints.type === "clock"){
         const clock = new Clock(constraints);
         const result = clock.start()
+        return result;
+    }
+    else if (constraints.type === "randomcolor"){
+        const randomColor = new RandomColor(constraints);
+        const result = randomColor.start()
         return result;
     }
     else if (constraints.type === "background"){

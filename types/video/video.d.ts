@@ -1,5 +1,5 @@
 export interface fakeVideoTrackConstraints {
-    type: "clock" | "background";
+    type: "clock" | "background" | "randomcolor";
     width: number;
     height: number;
     frameRate: number;
