@@ -94,7 +94,7 @@ export class RandomColor{
                     if (flooredTop === undefined || flooredLeft === undefined){
                         continue
                     }
-                    if (flooredLeft === left && flooredTop === top){
+                    // if (flooredLeft === left && flooredTop === top){
                         let rand = Math.floor(Math.random() * Math.pow(256, 3))
                         randomFrame[(left + top * this.constraints.width) * 4 + 0] = rand % 256
                         rand = Math.floor(rand / 256)
@@ -102,12 +102,12 @@ export class RandomColor{
                         rand = Math.floor(rand / 256)
                         randomFrame[(left + top * this.constraints.width) * 4 + 2] = rand % 256
                         randomFrame[(left + top * this.constraints.width) * 4 + 3] = 255
-                    }else{
-                        randomFrame[(left + top * this.constraints.width) * 4 + 0] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 0]
-                        randomFrame[(left + top * this.constraints.width) * 4 + 1] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 1]
-                        randomFrame[(left + top * this.constraints.width) * 4 + 2] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 2]
-                        randomFrame[(left + top * this.constraints.width) * 4 + 3] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 3]
-                    }
+                    // }else{
+                    //     randomFrame[(left + top * this.constraints.width) * 4 + 0] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 0]
+                    //     randomFrame[(left + top * this.constraints.width) * 4 + 1] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 1]
+                    //     randomFrame[(left + top * this.constraints.width) * 4 + 2] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 2]
+                    //     randomFrame[(left + top * this.constraints.width) * 4 + 3] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 3]
+                    // }
                 }
             }
             selectedImageData = new ImageData(randomFrame, this.constraints.width, this.constraints.height)

@@ -126,6 +126,38 @@
     </script>
 
 
+
+    <h2>4. 随机颜色</h2>
+    <pre>
+        document.getElementById("play-btn-random").onclick = async ()=>{
+            const fakeMedia = fakeMediaDevices.getFakeMedia({
+                audio: false,
+                video: {
+                    type: "randomcolor",
+                    bgImg,
+                },
+            })
+            const fakeMediaStream = new MediaStream([fakeMedia.video.track])
+            document.getElementById("video-randomcolor").srcObject = fakeMediaStream
+        }
+    </pre>
+    <button id="play-btn-randomcolor">播放</button>
+    <video id="video-randomcolor" controls autoplay playsinline></video>
+    <script>
+        document.getElementById("play-btn-randomcolor").onclick = async ()=>{
+            const fakeMedia = fakeMediaDevices.getFakeMedia({
+                audio: false,
+                video: {
+                    type: "randomcolor",
+                    bgImg,
+                },
+            })
+            const fakeMediaStream = new MediaStream([fakeMedia.video.track])
+            document.getElementById("video-randomcolor").srcObject = fakeMediaStream
+        }
+    </script>
+
+
     <script src="./assets/axios/dist/axios.min.js"></script>
     <script src="./assets/qrcode/qrcode.js"></script>
     <script src="./dist/fakeMediaDevices.js"></script>
