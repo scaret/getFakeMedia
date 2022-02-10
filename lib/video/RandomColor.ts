@@ -1,8 +1,22 @@
 import {fakeVideoTrackConstraints} from "./video";
 
 const randomArrays:{
-    [size:number]: Uint8ClampedArray[]
+    [size:string]: ImageData[]
 } = {}
+
+const powNum = 2
+const diffPoints: number[] = [0]
+for (let i = 0 ; i < 100; i++){
+    const p = Math.pow(powNum, i)
+    diffPoints.unshift(Math.pow(powNum, i))
+    if (p > 10000){
+        break;
+    }
+}
+const logPowNum = Math.log(powNum)
+const prime1 = 3557
+const prime2 = 43112609
+let seed = 3571
 
 export class RandomColor{
     private constraints: fakeVideoTrackConstraints;
@@ -63,37 +77,45 @@ export class RandomColor{
 
         // STARTOF随机颜色
         const size = this.constraints.width * this.constraints.height * 4
-        if (!randomArrays[size]){
-            // 随机60帧数据
-            randomArrays[size] = []
-            const powNum = 2
-            const logPowNum = Math.log(powNum)
-            for (let i = 0; i < 60; i++){
-                randomArrays[size][i] = new Uint8ClampedArray(size)
-                for(let left = 0; left< this.constraints.width; left++){
-                    const flooredLeft = left < 4 ? left : Math.pow(powNum, Math.floor(Math.log(left) / logPowNum))
-                    for(let top = 0; top < this.constraints.height; top++){
-                        const flooredTop = top < 4 ? top : Math.pow(powNum, Math.floor(Math.log(top) / logPowNum))
-                        if (flooredLeft === left && flooredTop === top){
-                            let rand = Math.floor(Math.random() * 256 * 256 * 256)
-                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 0] = rand % 256
-                            rand = Math.floor(rand / 256)
-                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 1] = rand % 256
-                            rand = Math.floor(rand / 256)
-                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 2] = rand % 256
-                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 3] = 255
-                        }else{
-                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 0] = randomArrays[size][i][(flooredLeft + flooredTop * this.constraints.width) * 4 + 0]
-                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 1] = randomArrays[size][i][(flooredLeft + flooredTop * this.constraints.width) * 4 + 1]
-                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 2] = randomArrays[size][i][(flooredLeft + flooredTop * this.constraints.width) * 4 + 2]
-                            randomArrays[size][i][(left + top * this.constraints.width) * 4 + 3] = randomArrays[size][i][(flooredLeft + flooredTop * this.constraints.width) * 4 + 3]
-                        }
+        const dimention = `${this.constraints.width}_${this.constraints.height}`
+        // 随机 STORED_FRAME_CNT 帧数据
+        const STORED_FRAME_CNT = 57
+        if (!randomArrays[dimention]){
+            randomArrays[dimention] = []
+        }
+        let selectedImageData:ImageData;
+        if (randomArrays[dimention].length < STORED_FRAME_CNT){
+            // 使用新的帧
+            const randomFrame = new Uint8ClampedArray(size)
+            for(let left = 0; left< this.constraints.width; left++){
+                const flooredLeft = diffPoints.find((f) => left >= f)
+                for(let top = 0; top < this.constraints.height; top++){
+                    const flooredTop = diffPoints.find((f) => top >= f)
+                    if (flooredTop === undefined || flooredLeft === undefined){
+                        continue
+                    }
+                    if (flooredLeft === left && flooredTop === top){
+                        let rand = Math.floor(Math.random() * Math.pow(256, 3))
+                        randomFrame[(left + top * this.constraints.width) * 4 + 0] = rand % 256
+                        rand = Math.floor(rand / 256)
+                        randomFrame[(left + top * this.constraints.width) * 4 + 1] = rand % 256
+                        rand = Math.floor(rand / 256)
+                        randomFrame[(left + top * this.constraints.width) * 4 + 2] = rand % 256
+                        randomFrame[(left + top * this.constraints.width) * 4 + 3] = 255
+                    }else{
+                        randomFrame[(left + top * this.constraints.width) * 4 + 0] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 0]
+                        randomFrame[(left + top * this.constraints.width) * 4 + 1] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 1]
+                        randomFrame[(left + top * this.constraints.width) * 4 + 2] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 2]
+                        randomFrame[(left + top * this.constraints.width) * 4 + 3] = randomFrame[(flooredLeft + flooredTop * this.constraints.width) * 4 + 3]
                     }
                 }
             }
+            selectedImageData = new ImageData(randomFrame, this.constraints.width, this.constraints.height)
+            randomArrays[dimention].push(selectedImageData)
+        }else{
+            selectedImageData = randomArrays[dimention][ts % STORED_FRAME_CNT]
         }
-        const imageData = new ImageData(randomArrays[size][ts % 60], this.constraints.width, this.constraints.height)
-        ctx.putImageData(imageData, 0, 0)
+        ctx.putImageData(selectedImageData, 0, 0)
         // ENDOF随机颜色
 
         // STARTOF写字
