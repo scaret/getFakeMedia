@@ -1,6 +1,6 @@
 {
   "name": "getfakemedia",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "A fake getUserMedia for WebRTC",
   "main": "dist/fakeMediaDevices.js",
   "types": "types/fakeMediaDevices.d.ts",
