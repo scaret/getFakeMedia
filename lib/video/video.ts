@@ -2,8 +2,10 @@ import {Clock} from "./Clock";
 import {BackgroundReplacement} from "./BackgroundReplacement";
 import {RandomColor} from "./RandomColor";
 
+export type VideoTypes = "clock"|"background"|"randomcolor"
+
 export interface fakeVideoTrackConstraints{
-    type: "clock"|"background"|"randomcolor";
+    type: VideoTypes;
     width: number;
     height: number;
     frameRate: number;

@@ -1,12 +1,14 @@
 import {ChannelSettings, fakeAudioTrackConstraints, getAudioTrack} from "./audio/audio";
-import {fakeVideoTrackConstraints, getVideoTrack} from "./video/video";
+import {fakeVideoTrackConstraints, getVideoTrack, VideoTypes} from "./video/video";
 
 export interface videoTrackConstraintInput{
+    type: VideoTypes;
     width?: number;
     height?: number;
     frameRate?: number;
     content?: string;
-    background?: string;
+    bgColor?: string;
+    bgImg?: CanvasImageSource;
 }
 
 export interface audioTrackConstraintInput{
