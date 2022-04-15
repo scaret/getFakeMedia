@@ -1,6 +1,7 @@
 import {Clock} from "./Clock";
 import {BackgroundReplacement} from "./BackgroundReplacement";
 import {RandomColor} from "./RandomColor";
+import {DisplayMedia} from "./DisplayMedia";
 
 export type VideoTypes = "clock"|"background"|"randomcolor"
 
@@ -29,6 +30,10 @@ export function getVideoTrack(constraints: fakeVideoTrackConstraints){
     }
     else if (constraints.type === "background"){
         const background = new BackgroundReplacement(constraints);
+        const result = background.start()
+        return result;
+    }else if (constraints.type === "display"){
+        const background = new DisplayMedia(constraints);
         const result = background.start()
         return result;
     }else{
