@@ -1,4 +1,5 @@
 import {fakeVideoTrackConstraints} from "./video";
+import {rtcTimer} from "../RTCTimer";
 
 export class DisplayMedia{
     private constraints: fakeVideoTrackConstraints;
@@ -36,7 +37,7 @@ export class DisplayMedia{
     drawFrame (fromSetInterval:boolean = false, tsIn?: number){
         const ts = Date.now()
         if (this.trackEnded){
-            clearInterval(this.interval);
+            rtcTimer.clearInterval(this.interval);
             if (this.displayInfo){
                 this.displayInfo.stream.getTracks().forEach((track)=>{
                     track.stop()
@@ -88,7 +89,7 @@ export class DisplayMedia{
         this.startTime = Date.now();
         this.frameMinInterval = Math.floor(1000 / this.constraints.frameRate)
         this.drawFrame(false, performance.now())
-        this.interval = setInterval(this.drawFrame.bind(this, true), 0)
+        this.interval = rtcTimer.setInterval(this.drawFrame.bind(this, true), 0)
         //@ts-ignore
         const stream:MediaStream = this.canvas.captureStream(this.constraints.frameRate)
         const videoTrack = stream.getVideoTracks()[0];
