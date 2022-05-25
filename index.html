@@ -157,6 +157,31 @@
         }
     </script>
 
+    <h2>5. 默认视频流+互相抵消的双声道方波</h2>
+    <pre>
+        const fakeMedia = fakeMediaDevices.getFakeMedia({
+            audio: {
+                type: "oscstereo",
+            },
+            video: true,
+        })
+        const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
+        document.getElementById("video-oscstereo").srcObject = fakeMediaStream
+    </pre>
+    <button id="play-btn-oscstereo">播放</button>
+    <video id="video-oscstereo" controls autoplay playsinline></video>
+    <script>
+        document.getElementById("play-btn-oscstereo").onclick = async ()=>{
+            const fakeMedia = fakeMediaDevices.getFakeMedia({
+                audio: {
+                    type: "oscstereo",
+                },
+                video: true,
+            })
+            const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
+            document.getElementById("video-oscstereo").srcObject = fakeMediaStream
+        }
+    </script>
 
     <script src="./assets/axios/dist/axios.min.js"></script>
     <script src="./assets/qrcode/qrcode.js"></script>

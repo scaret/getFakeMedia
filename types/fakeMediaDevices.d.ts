@@ -1,5 +1,6 @@
-import { ChannelSettings, fakeAudioTrackConstraints } from "./audio/audio";
+import { ChannelSettings, BufferTrackConstraints } from "./audio/BufferTrack";
 import { VideoTypes } from "./video/video";
+import { OscStereoConstraints } from "./audio/OscStereoTrack";
 export interface videoTrackConstraintInput {
     type: VideoTypes;
     width?: number;
@@ -17,7 +18,7 @@ export interface audioTrackConstraintInput {
     channelCount?: 1 | 2;
 }
 interface fakeMediaStreamConstraints {
-    audio?: boolean | fakeAudioTrackConstraints;
+    audio?: boolean | BufferTrackConstraints | OscStereoConstraints;
     video?: boolean | videoTrackConstraintInput;
 }
 export declare const audioTracks: MediaStreamTrack[];

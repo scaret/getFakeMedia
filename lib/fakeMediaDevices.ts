@@ -1,5 +1,6 @@
-import {ChannelSettings, fakeAudioTrackConstraints, getAudioTrack} from "./audio/audio";
+import {ChannelSettings, BufferTrackConstraints, getBufferTrack} from "./audio/BufferTrack";
 import {fakeVideoTrackConstraints, getVideoTrack, VideoTypes} from "./video/video";
+import {getOscStereoTrack, OscStereoConstraints} from "./audio/OscStereoTrack";
 
 export interface videoTrackConstraintInput{
     type: VideoTypes;
@@ -20,8 +21,8 @@ export interface audioTrackConstraintInput{
 }
 
 interface fakeMediaStreamConstraints{
-    audio?: boolean|fakeAudioTrackConstraints
-    video?: boolean|videoTrackConstraintInput
+    audio?: boolean|BufferTrackConstraints|OscStereoConstraints;
+    video?: boolean|videoTrackConstraintInput;
 }
 
 export const audioTracks:MediaStreamTrack[] = []
@@ -58,7 +59,20 @@ export function getFakeMedia(constrants: fakeMediaStreamConstraints){
         // promises.push(getAudioTrack().then((track)=>{
         //     audioTrack = track
         // }))
-        fakeMediaStream.audio = getAudioTrack(constrants.audio === true ? {channelCount: 1} : constrants.audio);
+        let audioConstraint:BufferTrackConstraints|OscStereoConstraints
+        if (constrants.audio === true){
+            audioConstraint = {
+                type: "buffertrack",
+                channelCount: 1
+            }
+        }else{
+            audioConstraint = constrants.audio
+        }
+        if (audioConstraint.type === "oscstereo"){
+            fakeMediaStream.audio = getOscStereoTrack(audioConstraint);
+        } else {
+            fakeMediaStream.audio = getBufferTrack(audioConstraint);
+        }
         audioTracks.push(fakeMediaStream.audio.track)
     }
     if (constrants.video){
