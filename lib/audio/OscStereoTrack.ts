@@ -21,7 +21,7 @@ export function getOscStereoTrack(constraint: OscStereoConstraints){
 
     // 振荡器节点
     const oscillatorNode = audioCtx.createOscillator();
-    oscillatorNode.type = 'square';
+    oscillatorNode.type = 'sine';
     oscillatorNode.frequency.value = frequency; // value in hertz
     oscillatorNode.start();
 
