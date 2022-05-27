@@ -189,15 +189,19 @@
         }
         document.getElementById("mute-left-oscstereo").onclick = async ()=>{
             fakeMedia.audio.gainNodeLeft.gain.value = 0
+            console.log("left", fakeMedia.audio.gainNodeLeft.gain.value, "right", fakeMedia.audio.gainNodeRight.gain.value)
         }
         document.getElementById("unmute-left-oscstereo").onclick = async ()=>{
             fakeMedia.audio.gainNodeLeft.gain.value = 1
+            console.log("left", fakeMedia.audio.gainNodeLeft.gain.value, "right", fakeMedia.audio.gainNodeRight.gain.value)
         }
         document.getElementById("mute-right-oscstereo").onclick = async ()=>{
             fakeMedia.audio.gainNodeRight.gain.value = 0
+            console.log("left", fakeMedia.audio.gainNodeLeft.gain.value, "right", fakeMedia.audio.gainNodeRight.gain.value)
         }
-        document.getElementById("unmute-left-oscstereo").onclick = async ()=>{
+        document.getElementById("unmute-right-oscstereo").onclick = async ()=>{
             fakeMedia.audio.gainNodeRight.gain.value = 1
+            console.log("left", fakeMedia.audio.gainNodeLeft.gain.value, "right", fakeMedia.audio.gainNodeRight.gain.value)
         }
     </script>
 
