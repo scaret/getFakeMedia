@@ -157,7 +157,7 @@
         }
     </script>
 
-    <h2>5. 默认视频流+互相抵消的双声道方波</h2>
+    <h2>5. 默认视频流+互相抵消的双声道正弦波</h2>
     <pre>
         const fakeMedia = fakeMediaDevices.getFakeMedia({
             audio: {
@@ -169,10 +169,16 @@
         document.getElementById("video-oscstereo").srcObject = fakeMediaStream
     </pre>
     <button id="play-btn-oscstereo">播放</button>
+    <button id="mute-left-oscstereo">关闭左声道</button>
+    <button id="unmute-left-oscstereo">打开左声道</button>
+    <button id="mute-right-oscstereo">关闭右声道</button>
+    <button id="unmute-right-oscstereo">打开右声道</button>
+    <br/>
     <video id="video-oscstereo" controls autoplay playsinline></video>
     <script>
+        let fakeMedia = null
         document.getElementById("play-btn-oscstereo").onclick = async ()=>{
-            const fakeMedia = fakeMediaDevices.getFakeMedia({
+            fakeMedia = fakeMediaDevices.getFakeMedia({
                 audio: {
                     type: "oscstereo",
                 },
@@ -180,6 +186,18 @@
             })
             const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
             document.getElementById("video-oscstereo").srcObject = fakeMediaStream
+        }
+        document.getElementById("mute-left-oscstereo").onclick = async ()=>{
+            fakeMedia.audio.gainNodeLeft.gain.value = 0
+        }
+        document.getElementById("unmute-left-oscstereo").onclick = async ()=>{
+            fakeMedia.audio.gainNodeLeft.gain.value = 1
+        }
+        document.getElementById("mute-right-oscstereo").onclick = async ()=>{
+            fakeMedia.audio.gainNodeRight.gain.value = 0
+        }
+        document.getElementById("unmute-left-oscstereo").onclick = async ()=>{
+            fakeMedia.audio.gainNodeRight.gain.value = 1
         }
     </script>
 
