@@ -1,5 +1,5 @@
 import {fakeVideoTrackConstraints} from "./video";
-import {rtcTimer} from "../RTCTimer";
+import {getRTCTimer} from "../RTCTimer";
 
 const randomArrays:{
     [size:string]: ImageData[]
@@ -51,7 +51,7 @@ export class RandomColor{
     drawFrame (fromSetInterval:boolean = false, tsIn?: number){
         const ts = Date.now()
         if (this.trackEnded){
-            rtcTimer.clearInterval(this.interval);
+            getRTCTimer().clearInterval(this.interval);
             return;
         }
         this.frameHistory = this.frameHistory.filter((item)=>{
@@ -154,7 +154,7 @@ export class RandomColor{
         this.startTime = Date.now();
         this.frameMinInterval = Math.floor(1000 / this.constraints.frameRate)
         this.drawFrame(false, performance.now())
-        this.interval = rtcTimer.setInterval(this.drawFrame.bind(this, true), 0)
+        this.interval = getRTCTimer().setInterval(this.drawFrame.bind(this, true), 0)
         //@ts-ignore
         const stream:MediaStream = this.canvas.captureStream(this.constraints.frameRate)
         const videoTrack = stream.getVideoTracks()[0];

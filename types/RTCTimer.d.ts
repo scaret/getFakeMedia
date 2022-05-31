@@ -7,6 +7,7 @@ export interface OfflineTimerOptions {
     minInterval: number;
 }
 export declare type SOURCES = "native" | "worker" | "webAudio";
+export declare function getWorkerBlobUrl(): any;
 export interface OfflineTimer {
     id: number;
     handler: () => any;
@@ -28,5 +29,5 @@ declare class RTCTimer {
     setInterval(handler: () => any, interval: number): void;
     clearInterval(timerId: number): void;
 }
-export declare const rtcTimer: RTCTimer;
+export declare function getRTCTimer(): RTCTimer;
 export {};

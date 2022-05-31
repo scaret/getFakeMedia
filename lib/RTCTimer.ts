@@ -1,9 +1,3 @@
-const workerBlob = new Blob(
-    [`setInterval(()=>{self.postMessage("RTCTimer")}, 8)`],
-    { type: 'text/js-worker' }
-)
-const workerBlobUrl = URL.createObjectURL(workerBlob)
-
 export interface OfflineTimerOptions{
     from: {
         native: boolean,
@@ -14,6 +8,18 @@ export interface OfflineTimerOptions{
 }
 
 export type SOURCES = "native"|"worker"|"webAudio"
+
+let workerBlobUrl:any = null
+export function getWorkerBlobUrl(){
+    if (!workerBlobUrl){
+        const workerBlob = new Blob(
+            [`setInterval(()=>{self.postMessage("RTCTimer")}, 8)`],
+            { type: 'text/js-worker' }
+        )
+        workerBlobUrl = URL.createObjectURL(workerBlob)
+    }
+    return workerBlobUrl
+}
 
 export interface OfflineTimer {
     id: number,
@@ -79,7 +85,7 @@ class RTCTimer {
             }, this.options.minInterval)
         }
         if (options.from.worker && typeof Worker !== undefined){
-            this.worker = new Worker(workerBlobUrl);
+            this.worker = new Worker(getWorkerBlobUrl());
             this.worker.onmessage = ()=>{
                 trigger("worker")
             }
@@ -109,12 +115,18 @@ class RTCTimer {
     }
 }
 
-export const rtcTimer = new RTCTimer();
+let rtcTimer:RTCTimer|null = null
+export function getRTCTimer(){
+    if (!rtcTimer){
+        rtcTimer = new RTCTimer();
+    }
+    return rtcTimer
+}
 
 let start = Date.now()
 const tongji = ()=>{
     const now = Date.now()
-    const history = rtcTimer.history.filter((item)=>{
+    const history = getRTCTimer().history.filter((item)=>{
         //只统计3秒内的
         return now - item.ts < 3000
     })
