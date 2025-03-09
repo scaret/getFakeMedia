@@ -5,10 +5,25 @@
     </head>
     <body>
     <h1>fakeMediaDevices.getFakeMedia</h1>
-    <a href="https://github.com/scaret/getFakeMedia" target="_blank">Github</a>
-    <a href="./index_en.html" target="_blank">English Version</a>
+    <i style="color:darkblue">
+In Real Time Communication(RTC) development, we often need to obtain a MediaStream from the camera<br>
+for encoding and transmission purposes. The fakeMediaDevices library simulates a camera stream to<br>
+ensure a stable input during testing. Additionally, it offers various parameters to support<br/>
+testing with different focuses.<br/>
+<br/>
+This page is a visual rendering showcase. In actual use, developers can access the WebRTC object
+programmatically for transmission.<br/>
+</i>
+<br/>
+<a href="https://github.com/scaret/getFakeMedia" target="_blank">Github</a> by Lu Yuchun
+<br/><br/>
 
-    <h2>1. 默认音频流+视频流</h2>
+    <h2>1. Default Options</h2>
+    <i style="color:darkblue">
+Most areas of the video remain static to avoid encoding resource usage,<br>
+while audio and video remain smooth for stability monitoring.
+    </i>
+
     <pre>
         const fakeMedia = fakeMediaDevices.getFakeMedia({
             audio: true,
@@ -17,7 +32,7 @@
         const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
         document.getElementById("video-default").srcObject = fakeMediaStream
     </pre>
-    <button id="play-btn-default">播放</button>
+    <button id="play-btn-default">Play</button>
     <video id="video-default" controls autoplay playsinline></video>
     <script>
         document.getElementById("play-btn-default").onclick = async ()=>{
@@ -31,7 +46,11 @@
     </script>
 
 
-    <h2>2. 双声道音频流+指定宽高、帧率的视频流。其中右声道指定音量，并伴有噪声</h2>
+    <h2>2. Stereo Audio + Configurable Video (Resolution, Frame Rate) with Noise in Right Channel</h2>
+    <i style="color:darkblue">
+Audio: Verifies stereo encoding, decoding, and playback support in the audio pipeline and devices.<br/>
+Video: Verifies device and codec support for resolution and frame rate.
+    </i>
     <pre>
         const fakeMedia = fakeMediaDevices.getFakeMedia({
             audio: {
@@ -59,7 +78,7 @@
         const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
         document.getElementById("video-stereo").srcObject = fakeMediaStream
     </pre>
-    <button id="play-btn-stereo">播放</button>
+    <button id="play-btn-stereo">Play</button>
     <video id="video-stereo" controls autoplay playsinline></video>
     <script>
         document.getElementById("play-btn-stereo").onclick = async ()=>{
@@ -92,7 +111,11 @@
     </script>
 
 
-    <h2>3. 背景替换</h2>
+    <h2>3. Background Replacement</h2>
+<i style="color:darkblue">
+Verifies the Wasm pipeline for video pre-processing
+</i>
+
     <pre>
         const bgImg = new Image()
         bgImg.src = "./assets/img/mountain.jpeg"
@@ -108,7 +131,7 @@
             document.getElementById("video-background").srcObject = fakeMediaStream
         }
     </pre>
-    <button id="play-btn-background">播放</button>
+    <button id="play-btn-background">Play</button>
     <video id="video-background" controls autoplay playsinline></video>
     <script>
         const bgImg = new Image()
@@ -128,7 +151,12 @@
 
 
 
-    <h2>4. 随机颜色</h2>
+    <h2>4. Random Pixels</h2>
+    <i style="color:darkblue">
+This demo creates a high-information-density camera environment to stress test the entire<br/>
+communication process. Notably, when WebRTC performance is limited, it allows trade-offs<br/>
+between resolution and image quality, making it ideal for such scenarios.<br/>
+    </i>
     <pre>
         document.getElementById("play-btn-random").onclick = async ()=>{
             const fakeMedia = fakeMediaDevices.getFakeMedia({
@@ -142,7 +170,7 @@
             document.getElementById("video-randomcolor").srcObject = fakeMediaStream
         }
     </pre>
-    <button id="play-btn-randomcolor">播放</button>
+    <button id="play-btn-randomcolor">Play</button>
     <video id="video-randomcolor" controls autoplay playsinline></video>
     <script>
         document.getElementById("play-btn-randomcolor").onclick = async ()=>{
@@ -158,7 +186,13 @@
         }
     </script>
 
-    <h2>5. 默认视频流+互相抵消的双声道正弦波</h2>
+    <h2>5. Default Video Stream + Phase-Canceling Stereo Sine Waves</h2>
+<i style="color:darkblue">
+Some devices do not support stereo playback and merge all channels during playback.<br/>
+If the energy of both channels cancels out at the same time, the audio disappears.<br/>
+This demo demonstrates this phenomenon. Notably, if the entire pipeline fails to synchronize<br/>
+the left and right channels precisely, the otherwise silent audio may produce sound.<br/>
+</i>
     <pre>
         const fakeMedia = fakeMediaDevices.getFakeMedia({
             audio: {
@@ -169,11 +203,11 @@
         const fakeMediaStream = new MediaStream([fakeMedia.audio.track, fakeMedia.video.track])
         document.getElementById("video-oscstereo").srcObject = fakeMediaStream
     </pre>
-    <button id="play-btn-oscstereo">播放</button>
-    <button id="mute-left-oscstereo">关闭左声道</button>
-    <button id="unmute-left-oscstereo">打开左声道</button>
-    <button id="mute-right-oscstereo">关闭右声道</button>
-    <button id="unmute-right-oscstereo">打开右声道</button>
+    <button id="play-btn-oscstereo">Play</button>
+    <button id="mute-left-oscstereo">Close Left Channel</button>
+    <button id="unmute-left-oscstereo">Open Left Channel</button>
+    <button id="mute-right-oscstereo">Close Right Channel</button>
+    <button id="unmute-right-oscstereo">Open Right Channel</button>
     <br/>
     <video id="video-oscstereo" controls autoplay playsinline></video>
     <script>
